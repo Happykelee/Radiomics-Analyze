@@ -8,8 +8,8 @@ if sys.version_info < (3, 6, 0):
   raise Exception("RadAnalyze requires python 3.6 or later")
 
 NAME = "RadAnalyze"
-DESCRIPTION = "Radiomic analysis using machine learning methods"
-KEYWORDS = "Radiomic analysis"
+DESCRIPTION = "Radiomics analysis using machine learning methods"
+KEYWORDS = "Radiomics analysis"
 LICENSE = 'MIT License'
 AUTHOR = "Zhengting Cai"
 AUTHOR_EMAIL = "jety2858@163.com, caizhengting2858@gmail.com"
