@@ -1,4 +1,4 @@
 # RadAnalyze
-Radiomic analysis using machine learning methods
+Radiomics analysis using machine learning methods
 
 
