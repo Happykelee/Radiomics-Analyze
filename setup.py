@@ -13,7 +13,7 @@ KEYWORDS = "Radiomic analysis"
 LICENSE = 'MIT License'
 AUTHOR = "Zhengting Cai"
 AUTHOR_EMAIL = "jety2858@163.com, caizhengting2858@gmail.com"
-URL = "https://github.com/Happykelee/the-study-of-Python/tree/master/Scripts/RadAnalyze"
+URL = "https://github.com/Happykelee/Radiomics-Analyze"
 VERSION = "0.1.0"
 REQUIRES = ['numpy',
             'pandas',
