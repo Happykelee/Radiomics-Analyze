@@ -18,21 +18,19 @@ VERSION = "0.1.0"
 REQUIRES = ['numpy',
             'pandas',
             'matplotlib',
-            'math',
-            'itertools',
             'scipy',
-            'sklearn>=0.20.0']
+            'scikit-learn>=0.20.0']
 
 setup(
     name = NAME,
-    version = VERSION,
-    keywords=KEYWORDS,
-    description = DESCRIPTION ,
-    license = LICENSE,
     url = URL,
     author = AUTHOR,
     author_email = AUTHOR_EMAIL,
+    version = VERSION,
     packages = find_packages(),
+    description = DESCRIPTION ,
+    license = LICENSE,
+    keywords=KEYWORDS,
     include_package_data = True,
     platforms = 'any',
     install_requires = REQUIRES,

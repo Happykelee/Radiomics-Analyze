@@ -1,0 +1,10 @@
+,Coefficients
+wavelet-LHL_glcm_InverseVariance,-0.06171608602366688
+original_shape_Compactness2,-0.014791093617032118
+wavelet-HHH_firstorder_Skewness,-0.0005153328993796658
+wavelet-HHH_glszm_GrayLevelNonUniformity,0.008518391895582797
+wavelet-LLH_firstorder_Skewness,0.014394527872576302
+original_shape_Maximum2DDiameterRow,0.0295374326138409
+original_shape_SurfaceArea,0.0710652389221768
+logarithm_glrlm_GrayLevelNonUniformity,0.08237859860901219
+intercept(non-feature),0.43434343434343425

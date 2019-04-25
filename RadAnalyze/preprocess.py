@@ -6,6 +6,7 @@ Created on Wed Jul 11 11:16:44 2018
 """
 import re
 import os
+import numpy as np
 from pandas import *
 from sklearn.preprocessing import StandardScaler,label_binarize
 from sklearn.model_selection import StratifiedKFold
@@ -31,8 +32,9 @@ def merge_header(fname,encode='gbk',sheet=0):
         df.custom_custom_patient_id = df.custom_custom_patient_id.str.strip() # delete the space
     except AttributeError:
         pass
-    df.custom_custom_patient_id = df.custom_custom_patient_id.replace(regex=' +',value = '-') # replace all of Non-numeric characters as '-'
-    df.index = df.custom_custom_patient_id;df.index = df.index.rename('MLID') # renew the index's name
+    assert(len(df.custom_custom_patient_id) == len(np.unique(df.custom_custom_patient_id))) # wether the indices are all unique
+    df.custom_custom_patient_id = df.custom_custom_patient_id.replace(regex='\s+',value = '-') # replace all of space as '-'
+    df.index = df.custom_custom_patient_id;df.index = df.index.rename('No') # renew the index's name
     return(df.sort_index())
 
 def get_features(df):
@@ -56,15 +58,16 @@ def Std_features(feature,mean=0,std=1):
 
 def DataFrame_label(label):
 # seem not very useful
-    if type(label) == type(Series()):
-        label = DataFrame(label_binarize(label,classes=label.drop_duplicates()),index=label.index)
-    elif type(label) == type(DataFrame()):
+    if type(label) == type(DataFrame()):
         label = label.iloc[:,0]
-        label = DataFrame(label_binarize(label,classes=label.drop_duplicates()),index=label.index)
+    elif type(label) == type(Series()):
+        pass
     else:
          raise AttributeError('Input structure of label error. Only can use Series and DataFrame!')
+    classes = label.drop_duplicates().sort_values()
+    label = DataFrame(label_binarize(label,classes=classes),index=label.index)
     label.columns = ['label']
-    label.index = label.index.rename('MLID')
+    label.index = label.index.rename('No')
     return(label.sort_index())
 
 def get_CVID(label,run=1000,n_splits=5,name='',fpath='./'):

@@ -1,0 +1,25 @@
+              precision    recall  f1-score   support
+
+          NC       0.89      0.96      0.92        56
+          RB       0.95      0.84      0.89        43
+
+   micro avg       0.91      0.91      0.91        99
+   macro avg       0.92      0.90      0.91        99
+weighted avg       0.91      0.91      0.91        99
+
+[Confusion Matrix]
+TN	FP
+FN	TP
+[[54  2]
+ [ 7 36]] 
+
+cutoff = ('Youden', 0.6374783907804753)
+recall = 0.8372093023255814
+precision = 0.9473684210526315
+sensitivity = 0.8372093023255814
+specificity = 0.9642857142857143
+accuracy = 0.9090909090909091
+F1 = 0.8888888888888888
+brier = 0.07214782964776685
+AUC = 0.9717607973421927
+95%CI-AUC = ('Binomial', 0.9169725085623216, 0.9945857476254419)

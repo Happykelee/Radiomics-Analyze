@@ -1,0 +1,11 @@
+,Coefficients
+wavelet-HHL_firstorder_Median,-0.07103200692303487
+original_shape_Compactness2,-0.013200195462504194
+wavelet-HLH_firstorder_Skewness,-0.004269917691767847
+wavelet-HLL_firstorder_Skewness,0.0046168470887399515
+wavelet-HHL_glszm_LargeAreaHighGrayLevelEmphasis,0.010977227676797563
+original_glszm_SmallAreaLowGrayLevelEmphasis,0.012407099530406057
+wavelet-HHL_glrlm_RunVariance,0.025579922918431246
+wavelet-LHL_firstorder_Skewness,0.03387419417816998
+original_shape_SurfaceArea,0.16568508949673125
+intercept(non-feature),0.44

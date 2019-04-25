@@ -200,6 +200,27 @@ class LASSO(paras):
         print(Lasso_Coefs)
         return(X_Lasso,Lasso_Coefs)
 
+    def Repeat_Simplified_LASSO(self,cv=10,max_iter=5000,repeat=100,rate=0.9):
+        if rate < 0 or rate > 1:
+            raise ValueError('the value of rate out of range: 0-1')
+        least_time = ceil(repeat*rate)
+        
+        kf = StratifiedKFold(n_splits=cv,shuffle=True)
+        features_group = []
+        for i in range(repeat):
+            sel_Lasso = LassoCV(cv=kf,max_iter=max_iter).fit(self.X,self.y)
+            LassoModel = Lasso(sel_Lasso.alpha_).fit(self.X,self.y)
+            features_group.extend(self.X.columns[LassoModel.coef_ != 0])
+        counts_origin = DataFrame(Counter(features_group).most_common(),columns=['features','repeated_times'])
+        counts_select = counts_origin[counts_origin.repeated_times >= least_time]
+        X_Repeat_Lasso = self.X[counts_select.features]
+        
+        X_Repeat_Lasso.to_csv(os.path.join(self.fpath,'_'.join([self.name,'X_ReLasso_origin.csv'])))
+        counts_origin.to_csv(os.path.join(self.fpath,'_'.join([self.name,'X_ReLassotimes_origin.csv'])))
+        counts_select.to_csv(os.path.join(self.fpath,'_'.join([self.name,'X_ReLassotimes_select',str(rate),'.csv'])))
+        print(counts_select)
+        return(X_Repeat_Lasso,counts_origin,counts_select)
+
 class Further_Selection(paras):
     """
     Reduce the feature number further based the previous selection method to avoid overfitting
@@ -324,8 +345,8 @@ class Filter_CV(paras):
             X_test.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'X.csv'])))
             y_test = self.y.reindex(id_test) # split into training set and test set of y
             y_train = self.y.reindex(id_train)
-            y_train.to_csv(os.path.join(fpath_out,'_'.join([self.name,'train',str(cv),'y.csv'])))
-            y_test.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'y.csv'])))
+            DataFrame_label(y_train).to_csv(os.path.join(fpath_out,'_'.join([self.name,'train',str(cv),'y.csv'])))
+            DataFrame_label(y_test).to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'y.csv'])))
 
             self_tmp = paras(X=X_train,y=y_train,fpath=fpath_out,name='_'.join([self.name,'train',str(cv)]))
             X_train_filter, coef = self.model.selection(self_tmp)
@@ -381,8 +402,8 @@ class LASSO_CV(paras):
             X_test.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'X_Sd.csv'])))
             y_test = self.y.reindex(id_test) # split into training set and test set of y
             y_train = self.y.reindex(id_train)
-            y_train.to_csv(os.path.join(fpath_out,'_'.join([self.name,'train',str(cv),'y.csv'])))
-            y_test.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'y.csv'])))
+            DataFrame_label(y_train).to_csv(os.path.join(fpath_out,'_'.join([self.name,'train',str(cv),'y.csv'])))
+            DataFrame_label(y_test).to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'y.csv'])))
 
             self_tmp = paras(X=X_train,y=y_train,fpath=fpath_out,name='_'.join([self.name,'train',str(cv)]))
             alpha = LASSO.MSEPath(self_tmp,max_iter,inner_n_splits)
@@ -390,6 +411,55 @@ class LASSO_CV(paras):
             X_train_Lasso,coef = LASSO.Lasso_origin(self_tmp,alpha)
             X_test_Lasso = X_test[X_train_Lasso.columns]
             X_test_Lasso.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'X_Lasso_origin.csv'])))
+            X_test_group.append(X_test_Lasso)
+            X_train_group.append(X_train_Lasso)
+            y_test_group.append(y_test)
+            y_train_group.append(y_train)
+            coef_group.append(coef)
+            print('-----{0}-----'.format(cv))
+        print('-----Finish!-----')
+
+        output = paras(
+            X_train=X_train_group,
+            X_test=X_test_group,
+            y_train=y_train_group,
+            y_test=y_test_group,
+            coef=coef_group)
+        return(output)
+
+    def repeat_selection(self,n_splits=5,inner_n_splits=5,max_iter=10000,repeat=100,rate=0.9):
+        try: shape(self.ID_test) == shape(self.ID_train)
+        except:
+            self.ID_train,self.ID_test = get_CVID_CSV(self.y,n_splits=n_splits,name=self.name,fpath=self.fpath)
+
+        X_train_group = []
+        y_train_group = []
+        X_test_group = []
+        y_test_group = []
+        coef_group = []
+        print('-----Start Repeat_LASSO_CV-----')
+        for cv in range(len(self.ID_test.columns)):
+            fpath_out = os.path.join(self.fpath,str(cv))
+            if not os.path.exists(fpath_out):os.makedirs(fpath_out)
+            id_test = self.ID_test.iloc[:,cv].dropna(axis = 0).apply(int) # get the ID
+            id_train = self.ID_train.iloc[:,cv].dropna(axis = 0).apply(int)
+
+            X_test = self.X.reindex(id_test) # split into training set and test set of X
+            X_train = self.X.reindex(id_train)
+            scaler = StandardScaler().fit(X_train) # standardization
+            X_train = DataFrame(scaler.transform(X_train),columns = X_train.columns,index=X_train.index)
+            X_test = DataFrame(scaler.transform(X_test),columns = X_test.columns,index=X_test.index)
+            X_train.to_csv(os.path.join(fpath_out,'_'.join([self.name,'train',str(cv),'X_Sd.csv']))) #store
+            X_test.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'X_Sd.csv'])))
+            y_test = self.y.reindex(id_test) # split into training set and test set of y
+            y_train = self.y.reindex(id_train)
+            DataFrame_label(y_train).to_csv(os.path.join(fpath_out,'_'.join([self.name,'train',str(cv),'y.csv'])))
+            DataFrame_label(y_test).to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'y.csv'])))
+
+            self_tmp = paras(X=X_train,y=y_train,fpath=fpath_out,name='_'.join([self.name,'train',str(cv)]))
+            X_train_Lasso,coef,_ = LASSO.Repeat_Simplified_LASSO(self_tmp,inner_n_splits,max_iter,repeat,rate)
+            X_test_Lasso = X_test[X_train_Lasso.columns]
+            X_test_Lasso.to_csv(os.path.join(fpath_out,'_'.join([self.name,'test',str(cv),'X_ReLasso_origin.csv'])))
             X_test_group.append(X_test_Lasso)
             X_train_group.append(X_train_Lasso)
             y_test_group.append(y_test)

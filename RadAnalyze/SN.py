@@ -17,7 +17,6 @@ from math import log,pi
 from itertools import combinations
 from scipy.stats import f,norm
 from sklearn.metrics import roc_curve,roc_auc_score
-from sklearn.metrics import check_scoring
 from sklearn.model_selection import StratifiedKFold
 
 def plot_default(size=10):

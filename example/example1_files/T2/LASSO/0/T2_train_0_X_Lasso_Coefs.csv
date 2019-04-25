@@ -1,0 +1,8 @@
+,Coefficients
+wavelet-HHL_firstorder_Median,-0.08049294472521336
+wavelet-LHL_firstorder_Kurtosis,-0.00850653662399461
+wavelet-LLL_glcm_Imc1,0.001750888756397208
+wavelet-LHL_firstorder_Skewness,0.007827395906550858
+original_shape_MinorAxis,0.013365484018901544
+original_shape_SurfaceArea,0.13448817630617418
+intercept(non-feature),0.4343434343434344

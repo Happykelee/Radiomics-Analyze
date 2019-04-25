@@ -14,6 +14,7 @@ from own_packages.SN import *
 from scipy import interp
 from copy import copy
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import check_scoring
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,brier_score_loss,roc_auc_score
 
