@@ -20,6 +20,23 @@ from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
 
 from sklearn.metrics import auc
 
+def cal_pred_prob(model,Input,scaling='Platt'):
+    assert(scaling == 'Platt' or scaling == 'MaxMin')
+    if not hasattr(model, "predict_proba") or scaling == 'MaxMin':
+        prob_pos = model.decision_function(Input) # the scaling method: Max-Min
+        prob_pos = (prob_pos - prob_pos.min()) / (prob_pos.max() - prob_pos.min())
+        prob_neg = 1-prob_pos
+        pred_prob = array([prob_neg,prob_pos]).T
+    elif hasattr(model, "probA_") and scaling == 'Platt':# the scaling method: Platt scaling 
+        # Platt,John(1999).'Probabilistic outputs for support vector machines and comparison to regularized likelihood methods.'
+        prob_pos = model.decision_function(Input)
+        prob_pos = 1 / (1 + exp(prob_pos * model.probA_ + model.probB_))
+        prob_neg = 1-prob_pos
+        pred_prob = array([prob_neg,prob_pos]).T
+    else:
+        pred_prob = model.predict_proba(Input)
+    return pred_prob
+
 def CV_learning(paras,n_splits,scoring='roc_auc'):
     """
     Machine learning using cross-validation, and use the class of paras
@@ -37,7 +54,7 @@ def CV_learning(paras,n_splits,scoring='roc_auc'):
         X_test  = paras.X.iloc[test,:]
         y_test  = paras.y.iloc[test]
         paras.model.fit(X_train,y_train)
-        pred_proba_tmp = DataFrame(paras.model.predict_proba(X_test),index = X_test.index)
+        pred_proba_tmp = DataFrame(cal_pred_prob(paras.model,X_test),index = X_test.index)
         pred_proba_group.append(pred_proba_tmp)
         try:
             scores.append(scorer(paras.model,X_test,y_test))
@@ -151,7 +168,7 @@ def print_model_params(model_params,name,fpath):
         for key in model_params:
             print('\t{0}:{1}\n'.format(key,model_params[key]),file=f)
 
-def ROC_plot_One(obs,pred_proba_pos,name,fpath,size):
+def ROC_plot_One(obs,pred_proba_pos,name,fpath,size=10):
     """
     Plot the ROC curve for a specific class
     """
@@ -240,7 +257,7 @@ def Output_One(paras,label,data_typeof,cutoff_typeof,CI_typeof):
 
     print('------{0}------'.format(data_typeof))
     if data_typeof == 'test' or data_typeof == 'train':
-        pred_proba = DataFrame(paras.model.predict_proba(fea),index=fea.index,columns=label)
+        pred_proba = DataFrame(cal_pred_prob(paras.model,fea),index=fea.index,columns=label)
     else:
         pred_proba = paras.pred_proba
     pred_proba_pos = pred_proba.iloc[:,1]
